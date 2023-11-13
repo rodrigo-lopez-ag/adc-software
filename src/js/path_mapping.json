@@ -379,6 +379,21 @@
         "pathSuffix": "/min/ojcss'",
         "cdnPath": "ojcss"
       }
+    },
+
+    "axios": {
+      "cdn": "3rdparty",
+      "cwd": "node_modules/axios/dist",
+      "debug": {
+        "src": "axios.js",
+        "path": "libs/axios/axios.js",
+        "cdnPath": ""
+      },
+      "release": {
+        "src": "axios.min.js",
+        "path": "libs/axios/axios.min.js",
+        "cdn": ""
+      }
     }
 
   }

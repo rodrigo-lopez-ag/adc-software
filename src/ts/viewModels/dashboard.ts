@@ -6,11 +6,76 @@
  * @ignore
  */
 import * as AccUtils from "../accUtils";
+import * as ko from 'knockout';
+import ArrayDataProvider = require("ojs/ojarraydataprovider");
+
+import { Constants } from "../utils/constants";
+
+import axios, { AxiosResponse } from "axios";
+
 class DashboardViewModel {
+  goalsDataProvider: ArrayDataProvider<Object[], Object>;
+  routinesDataProvider: ArrayDataProvider<Object[], Object>;
+  kgoals: ko.ObservableArray<Object> = ko.observableArray();
+  kroutines: ko.ObservableArray<Object> = ko.observableArray();
 
   constructor() {
+    this.goalsDataProvider = new ArrayDataProvider([]);
+    this.routinesDataProvider = new ArrayDataProvider([]);
 
+    this.loadGoals();
+    this.loadRoutines();
   }
+
+  fetchAllRoutines = async(): Promise<any> => {
+    try {
+      const response: AxiosResponse<any> = await axios.get(Constants.API_BASE_URL + Constants.ROUTINES_PATH);
+      return response.data;
+    } catch (error) {
+      this.handleApiError(error);
+      throw error;
+    }
+  }
+
+  fetchAllGoals = async(): Promise<any> => {
+    try {
+      const response: AxiosResponse<any> = await axios.get(Constants.API_BASE_URL + Constants.GOALS_PATH);
+      return response.data;
+    } catch (error) {
+      this.handleApiError(error);
+      throw error;
+    }
+  }
+
+  loadGoals = async (): Promise<void> => {
+    const goals = this.fetchAllGoals();
+    goals.then(data => {
+      data.map((e: any) => {
+        const { IDMeta, DescripcionMeta } = e;
+        this.kgoals.push({ IDMeta, DescripcionMeta });
+      });
+    });
+    this.goalsDataProvider = new ArrayDataProvider(this.kgoals ,{
+      keyAttributes: 'IDMeta'
+    });
+  }
+
+  loadRoutines = async(): Promise<void> => {
+    const routines = this.fetchAllRoutines();
+    routines.then(data => {
+      data.map((e: any) => {
+        const { ID, Tipo, NombreEjercicio, Descripcion, Repeticiones, Duracion, Series } = e;
+        this.kroutines.push({ ID, Tipo, NombreEjercicio, Descripcion, Repeticiones, Duracion, Series });
+      });
+    });
+    this.routinesDataProvider = new ArrayDataProvider(this.kroutines ,{
+      keyAttributes: 'ID'
+    });
+  }
+
+  handleApiError = (error: any) => {
+    console.error('API Error:', error.message);
+  };
 
   /**
    * Optional ViewModel method invoked after the View is inserted into the
