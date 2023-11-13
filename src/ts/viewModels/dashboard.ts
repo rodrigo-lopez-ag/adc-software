@@ -7,10 +7,14 @@
  */
 import * as AccUtils from "../accUtils";
 import * as ko from 'knockout';
+
+import 'ojs/ojtable';
+import "ojs/ojdialog";
+import "ojs/ojformlayout";
+import "ojs/ojinputtext";
+
 import ArrayDataProvider = require("ojs/ojarraydataprovider");
-
 import { Constants } from "../utils/constants";
-
 import axios, { AxiosResponse } from "axios";
 
 class DashboardViewModel {
@@ -18,6 +22,19 @@ class DashboardViewModel {
   routinesDataProvider: ArrayDataProvider<Object[], Object>;
   kgoals: ko.ObservableArray<Object> = ko.observableArray();
   kroutines: ko.ObservableArray<Object> = ko.observableArray();
+  
+  readonly routinesColumns: Object[] = [
+    { headerText: 'Tipo', field: 'Tipo', id: 'Tipo' },
+    { headerText: 'Nombre', field: 'Nombre', id: 'Nombre' },
+    { headerText: 'Descripcion', field: 'Descripcion', id: 'Descripcion' },
+    { headerText: 'Repeticiones', field: 'Repeticiones', id: 'Repeticiones' },
+    { headerText: 'Duracion', field: 'Duracion', id: 'Duracion' },
+    { headerText: 'Series', field: 'Series', id: 'Series' }
+  ]
+
+  readonly goalsColumns: Object[] = [
+    { headerText: 'Descripcion', field: 'DescripcionMeta', id: 'Descripcion' },
+  ]
 
   constructor() {
     this.goalsDataProvider = new ArrayDataProvider([]);

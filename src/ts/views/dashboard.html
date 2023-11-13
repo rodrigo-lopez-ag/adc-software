@@ -7,9 +7,9 @@
   <h1 class="oj-sm-margin-7x">Panel de control</h1>
   <div class="oj-panel oj-sm-margin-4x">
     <div class="oj-flex oj-sm-flex-items-initial oj-md-justify-content-space-around">
-      <oj-button id="addObj" class="oj-flex-item">Agregar metas</oj-button>
-      <oj-button id="addRoutine" class="oj-flex-item">Agregar rutinas</oj-button>
-      <oj-button id="setNotifications" class="oj-flex-item">Configurar recordatorios</oj-button>
+      <oj-button id="addObj" class="oj-flex-item oj-button-lg">Agregar metas</oj-button>
+      <oj-button id="addRoutine" class="oj-flex-item oj-button-lg">Agregar rutinas</oj-button>
+      <oj-button id="setNotifications" class="oj-flex-item oj-button-lg">Configurar recordatorios</oj-button>
     </div>
     <div class="oj-flex">
       <div class="oj-sm-4 oj-flex-item oj-sm-padding-2x oj-sm-margin-2x-vertical">
@@ -17,18 +17,16 @@
           <h5 class="oj-flex oj-sm-flex-items-initial oj-lg-justify-content-center">Lista de metas</h5>
         </div>
         <div class="oj-sm-margin-2x-vertical">
-          <span class="oj-typography-subheading-xs">Descripcion</span>
-          <ol>
-            <oj-bind-for-each data="[[goalsDataProvider]]">
-              <template>
-                <li>
-                  <oj-label slot="label">
-                    <oj-bind-text value="[[$current.data.DescripcionMeta]]"></oj-bind-text>
-                  </oj-label>
-                </li>
-              </template>
-            </oj-bind-for-each>
-          </ol>
+          <oj-table
+            id="routinesTable"
+            aria-label="Routines Table"
+            accessibility.row-header="routine"
+            data="[[goalsDataProvider]]"
+            columns="{{goalsColumns}}"
+            columns-default='{"sortable": "disabled"}'
+            class="demo-table-container"
+          >
+          </oj-table>
         </div>
       </div>
       <div class="oj-sm-8 oj-flex-item oj-sm-padding-2x oj-sm-margin-2x-vertical">
@@ -36,26 +34,16 @@
           <h5 class="oj-flex oj-sm-flex-items-initial oj-lg-justify-content-center">List de rutinas</h5>
         </div>
         <div class="oj-sm-margin-2x-vertical">
-          <div class="oj-flex">
-            <div class="oj-typography-subheading-xs oj-sm-2 oj-flex-item">
-              <span>Tipo</span>
-            </div>
-            <div class="oj-typography-subheading-xs oj-sm-2 oj-flex-item">
-              <span>Nombre</span>
-            </div>
-            <div class="oj-typography-subheading-xs oj-sm-2 oj-flex-item">
-              <span>Descripcion</span>
-            </div>
-            <div class="oj-typography-subheading-xs oj-sm-2 oj-flex-item">
-              <span>Repeticiones</span>
-            </div>
-            <div class="oj-typography-subheading-xs oj-sm-2 oj-flex-item">
-              <span>Duracion</span>
-            </div>
-            <div class="oj-typography-subheading-xs oj-sm-2 oj-flex-item">
-              <span>Series</span>
-            </div>
-          </div>
+          <oj-table
+            id="routinesTable"
+            aria-label="Routines Table"
+            accessibility.row-header="routine"
+            data="[[routinesDataProvider]]"
+            columns="{{routinesColumns}}"
+            columns-default='{"sortable": "disabled"}'
+            class="demo-table-container"
+          >
+          </oj-table>
         </div>
       </div>
     </div>
