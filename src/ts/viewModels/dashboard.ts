@@ -1,19 +1,17 @@
-/**
- * @license
- * Copyright (c) 2014, 2023, Oracle and/or its affiliates.
- * Licensed under The Universal Permissive License (UPL), Version 1.0
- * as shown at https://oss.oracle.com/licenses/upl/
- * @ignore
- */
-import * as AccUtils from "../accUtils";
 import * as ko from 'knockout';
-
+import ArrayDataProvider = require("ojs/ojarraydataprovider");
+import { ojDialog } from "ojs/ojdialog";
+import { ojButton } from "ojs/ojbutton";
+import "ojs/ojknockout";
+import "ojs/ojinputtext";
+import "ojs/ojdialog";
+import "ojs/ojbutton";
+import 'ojs/ojvalidationgroup';
+import 'ojs/ojlabelvalue';
 import 'ojs/ojtable';
 import "ojs/ojdialog";
 import "ojs/ojformlayout";
-import "ojs/ojinputtext";
 
-import ArrayDataProvider = require("ojs/ojarraydataprovider");
 import { Constants } from "../utils/constants";
 import axios, { AxiosResponse } from "axios";
 
@@ -22,10 +20,15 @@ class DashboardViewModel {
   routinesDataProvider: ArrayDataProvider<Object[], Object>;
   kgoals: ko.ObservableArray<Object> = ko.observableArray();
   kroutines: ko.ObservableArray<Object> = ko.observableArray();
+
+  goalType: ko.Observable<string>;
+  goalObjective: ko.Observable<string>;
+  goalDescription: ko.Observable<string>;
+
   
   readonly routinesColumns: Object[] = [
     { headerText: 'Tipo', field: 'Tipo', id: 'Tipo' },
-    { headerText: 'Nombre', field: 'Nombre', id: 'Nombre' },
+    { headerText: 'Nombre', field: 'NombreEjercicio', id: 'Nombre' },
     { headerText: 'Descripcion', field: 'Descripcion', id: 'Descripcion' },
     { headerText: 'Repeticiones', field: 'Repeticiones', id: 'Repeticiones' },
     { headerText: 'Duracion', field: 'Duracion', id: 'Duracion' },
@@ -37,11 +40,20 @@ class DashboardViewModel {
   ]
 
   constructor() {
+    const self = this;
+    this.goalType = ko.observable("");
+    this.goalObjective = ko.observable("");
+    this.goalDescription = ko.observable("");
+
     this.goalsDataProvider = new ArrayDataProvider([]);
     this.routinesDataProvider = new ArrayDataProvider([]);
 
     this.loadGoals();
     this.loadRoutines();
+  }
+
+  generateRandomId = () => {
+    return Math.floor(Math.random() * 1000000) + 1;
   }
 
   fetchAllRoutines = async(): Promise<any> => {
@@ -92,35 +104,19 @@ class DashboardViewModel {
 
   handleApiError = (error: any) => {
     console.error('API Error:', error.message);
-  };
-
-  /**
-   * Optional ViewModel method invoked after the View is inserted into the
-   * document DOM.  The application can put logic that requires the DOM being
-   * attached here.
-   * This method might be called multiple times - after the View is created
-   * and inserted into the DOM and after the View is reconnected
-   * after being disconnected.
-   */
-  connected(): void {
-    AccUtils.announce("Dashboard page loaded.");
-    document.title = "Sistema de gestionamiento de ejercicio";
-    // implement further logic if needed
   }
 
-  /**
-   * Optional ViewModel method invoked after the View is disconnected from the DOM.
-   */
-  disconnected(): void {
-    // implement if needed
+  public addGoal(event: ojButton.ojAction) {
+    console.log(this.goalDescription());
+    (document.getElementById("modalDialog1") as ojDialog).close();
   }
 
-  /**
-   * Optional ViewModel method invoked after transition to the new View is complete.
-   * That includes any possible animation between the old and the new View.
-   */
-  transitionCompleted(): void {
-    // implement if needed
+  public close(event: ojButton.ojAction) {
+    (document.getElementById("modalDialog1") as ojDialog).close();
+  }
+
+  public open(event: ojButton.ojAction) {
+    (document.getElementById("modalDialog1") as ojDialog).open();
   }
 }
 

@@ -6,8 +6,41 @@
 <div class="oj-hybrid-padding">
   <h1 class="oj-sm-margin-7x">Panel de control</h1>
   <div class="oj-panel oj-sm-margin-4x">
+    <oj-dialog id="modalDialog1" dialog-title="Agregar Meta" cancel-behavior="escape" initial-visibility="hide">
+      <div slot="body">
+        <oj-form-layout direction="row" max-columns="2">
+          <oj-input-text
+            id="goalType"
+            label-hint="Tipo de meta"
+            required="true"
+            value="{{goalType}}"
+          ></oj-input-text>
+          <oj-input-text
+            id="goalObjective"
+            label-hint="Valor objetivo"
+            required="true"
+            value="{{goalObjective}}"
+            raw-value="{{goalObjective}}"
+          ></oj-input-text>
+          <oj-label-value colspan="2">
+            <oj-text-area
+              id="goalDescription"
+              label-hint="Descripcion de la meta"
+              rows="2"
+              slot="value"
+              required="true"
+              value="{{goalDescription}}"
+            ></oj-text-area>
+          </oj-label-value>
+        </oj-form-layout>
+      </div>
+      <div slot="footer">
+        <oj-button id="addButton" on-oj-action="[[addGoal]]" chroming="callToAction">Agregar meta</oj-button>
+        <oj-button id="closeButton" on-oj-action="[[close]]">Cancelar</oj-button>
+      </div>
+    </oj-dialog>
     <div class="oj-flex oj-sm-flex-items-initial oj-md-justify-content-space-around">
-      <oj-button id="addObj" class="oj-flex-item oj-button-lg">Agregar metas</oj-button>
+      <oj-button id="addObj" class="oj-flex-item oj-button-lg" on-oj-action="[[open]]">Agregar metas</oj-button>
       <oj-button id="addRoutine" class="oj-flex-item oj-button-lg">Agregar rutinas</oj-button>
       <oj-button id="setNotifications" class="oj-flex-item oj-button-lg">Configurar recordatorios</oj-button>
     </div>
