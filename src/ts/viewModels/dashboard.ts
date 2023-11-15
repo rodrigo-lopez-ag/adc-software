@@ -22,7 +22,8 @@ type DemoMessageBannerItem = MessageBannerItem & {
 };
 
 class DashboardViewModel {
-  readonly messages: MutableArrayDataProvider<string, DemoMessageBannerItem>;
+  readonly messagesGoals: MutableArrayDataProvider<string, DemoMessageBannerItem>;
+  readonly messagesRoutines: MutableArrayDataProvider<string, DemoMessageBannerItem>;
 
   goalsDataProvider: ArrayDataProvider<Object[], Object>;
   routinesDataProvider: ArrayDataProvider<Object[], Object>;
@@ -33,6 +34,12 @@ class DashboardViewModel {
   goalObjective: ko.Observable<number | undefined>;
   goalDescription: ko.Observable<string>;
 
+  routineName: ko.Observable<string>;
+  routineDescription: ko.Observable<string>;
+  routineType: ko.Observable<string>;
+  routineDuration: ko.Observable<number | undefined>;
+  routineReps: ko.Observable<number | undefined>;
+  routineSeries: ko.Observable<number | undefined>;
   
   readonly routinesColumns: Object[] = [
     { headerText: 'Tipo', field: 'Tipo', id: 'Tipo' },
@@ -48,13 +55,23 @@ class DashboardViewModel {
   ]
 
   constructor() {
-    this.messages = new MutableArrayDataProvider([], {
+    this.messagesGoals = new MutableArrayDataProvider([], {
+      keyAttributes: 'id'
+    });
+    this.messagesRoutines = new MutableArrayDataProvider([], {
       keyAttributes: 'id'
     });
 
     this.goalType = ko.observable("");
     this.goalObjective = ko.observable();
     this.goalDescription = ko.observable("");
+
+    this.routineName = ko.observable("");
+    this.routineDescription = ko.observable("");
+    this.routineType = ko.observable("");
+    this.routineDuration = ko.observable();
+    this.routineReps = ko.observable();
+    this.routineSeries = ko.observable();
 
     this.goalsDataProvider = new ArrayDataProvider([]);
     this.routinesDataProvider = new ArrayDataProvider([]);
@@ -133,6 +150,7 @@ class DashboardViewModel {
     if (typeof payload.DescripcionMeta !== 'string' || payload.DescripcionMeta.trim() === '') {
       return false;
     }
+
     return true;
   }
 
@@ -141,8 +159,8 @@ class DashboardViewModel {
     const date = Number(this.generateUnixTimestamp());
 
     const payload = {
-      IDUsuario: '1',
       IDMeta: id,
+      IDUsuario: '1',
       ValorObjetivo: Number(this.goalObjective()),
       TipoMeta: this.goalType(),
       DescripcionMeta: this.goalDescription(),
@@ -151,33 +169,86 @@ class DashboardViewModel {
     if (this.validateGoalPayload(payload)) {
       const postUrl = Constants.API_BASE_URL + Constants.GOALS_PATH;
       const response: AxiosResponse<any> = await axios.post(postUrl, payload);
-
-      const addedGoal = await response.data;
-      console.log(addedGoal);
       this.loadGoals();
-
       (document.getElementById("modalDialog1") as ojDialog).close();
     } else {
-      let data = this.messages.data.slice();
+      let data = this.messagesGoals.data.slice();
       data.push({ id: 'message', severity: 'error', summary: 'Los campos requeridos no pueden estar vacios'});
-      this.messages.data = data;
+      this.messagesGoals.data = data;
     }
   }
 
-  public close(event: ojButton.ojAction) {
+  public addRoutine = async(event: ojButton.ojAction) => {
+    const id = this.generateRandomId().toString();
+    
+    const payload = {
+      ID: id,
+      IDUsuario: '1',
+      NombreEjercicio: this.routineName(),
+      Descripcion: this.routineDescription(),
+      Tipo: this.routineType(),
+      Duracion: Number(this.routineDuration()),
+      Repeticiones: Number(this.routineReps()),
+      Series: Number(this.routineSeries())
+    };
+    if (this.validateRoutinelPayload(payload)) {
+      const postUrl = Constants.API_BASE_URL + Constants.ROUTINES_PATH;
+      const response: AxiosResponse<any> = await axios.post(postUrl, payload);
+      this.loadRoutines();
+      (document.getElementById("modalDialog2") as ojDialog).close();
+    } else {
+      let data = this.messagesRoutines.data.slice();
+      data.push({ id: 'message', severity: 'error', summary: 'Los campos requeridos no pueden estar vacios'});
+      this.messagesRoutines.data = data;
+    }
+  }
+
+  validateRoutinelPayload = (payload: Routines): boolean => {
+    if (typeof payload.NombreEjercicio !== 'string' || payload.NombreEjercicio.trim() === '') {
+      return false;  
+    }
+
+    if (typeof payload.Descripcion !== 'string' || payload.Descripcion.trim() === '') {
+      return false;
+    }
+
+    if (typeof payload.Tipo !== 'string' || payload.Tipo.trim() === '') {
+      return false;
+    }
+
+    return true;
+  }
+
+  public close1(event: ojButton.ojAction) {
     (document.getElementById("modalDialog1") as ojDialog).close();
   }
 
-  public open(event: ojButton.ojAction) {
+  public open1(event: ojButton.ojAction) {
     (document.getElementById("modalDialog1") as ojDialog).open();
   }
 
-  readonly closeMessage = (event: MessageBannerElement.ojClose<string, DemoMessageBannerItem>) => {
-    let data = this.messages.data.slice();
+  public close2(event: ojButton.ojAction) {
+    (document.getElementById("modalDialog2") as ojDialog).close();
+  }
+
+  public open2(event: ojButton.ojAction) {
+    (document.getElementById("modalDialog2") as ojDialog).open();
+  }
+
+  readonly closeMessageGoals = (event: MessageBannerElement.ojClose<string, DemoMessageBannerItem>) => {
+    let data = this.messagesGoals.data.slice();
     const closeMessageKey = event.detail.key;
 
     data = data.filter((message) => (message as any).id !== closeMessageKey);
-    this.messages.data = data;
+    this.messagesGoals.data = data;
+  };
+
+  readonly closeMessageRoutines = (event: MessageBannerElement.ojClose<string, DemoMessageBannerItem>) => {
+    let data = this.messagesRoutines.data.slice();
+    const closeMessageKey = event.detail.key;
+
+    data = data.filter((message) => (message as any).id !== closeMessageKey);
+    this.messagesRoutines.data = data;
   };
 }
 

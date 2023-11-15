@@ -9,10 +9,11 @@
     <oj-dialog id="modalDialog1" dialog-title="Agregar Meta" cancel-behavior="escape" initial-visibility="hide">
       <div slot="header">
         <oj-message-banner
-          data="[[messages]]"
+          data="[[messagesGoals]]"
           type="page"
-          on-oj-close="[[closeMessage]]"
+          on-oj-close="[[closeMessageGoals]]"
         ></oj-message-banner>
+        <h6>Agregar meta</h6>
       </div>
       <div slot="body">
         <oj-form-layout direction="row" max-columns="2">
@@ -41,13 +42,72 @@
         </oj-form-layout>
       </div>
       <div slot="footer">
-        <oj-button id="addButton" on-oj-action="[[addGoal]]" chroming="callToAction">Agregar meta</oj-button>
-        <oj-button id="closeButton" on-oj-action="[[close]]">Cancelar</oj-button>
+        <oj-button id="addButtonGoal" on-oj-action="[[addGoal]]" chroming="callToAction">Agregar meta</oj-button>
+        <oj-button id="closeButtonGoal" on-oj-action="[[close1]]">Cancelar</oj-button>
+      </div>
+    </oj-dialog>
+    <oj-dialog id="modalDialog2" dialog-title="Agregar Rutina" cancel-behavior="escape" initial-visibility="hide">
+      <div slot="header">
+        <oj-message-banner
+          data="[[messagesRoutines]]"
+          type="page"
+          on-oj-close="[[closeMessageRoutines]]"
+        ></oj-message-banner>
+        <h6>Agregar rutina</h6>
+      </div>
+      <div slot="body">
+        <oj-form-layout direction="row" max-columns="2">
+          <oj-label-value colspan="2">
+            <oj-text-area
+            id="routineName"
+            label-hint="Nombre del ejercicio"
+            rows="1"
+            slot="value"
+            required="true"
+            value="{{routineName}}"
+          ></oj-text-area>
+          </oj-label-value>
+          <oj-label-value colspan="2">
+            <oj-text-area
+            id="routineDescription"
+            label-hint="Descripcion"
+            rows="2"
+            slot="value"
+            required="true"
+            value="{{routineDescription}}"
+          ></oj-text-area>
+          </oj-label-value>
+          <oj-input-text
+            id="routineType"
+            label-hint="Tipo"
+            required="true"
+            value="{{routineType}}"
+          ></oj-input-text>
+          <oj-input-text
+            id="routineDuration"
+            label-hint="Duracion"
+            value="{{routineDuration}}"
+          ></oj-input-text>
+          <oj-input-text
+            id="routineReps"
+            label-hint="Repeticiones"
+            value="{{routineReps}}"
+          ></oj-input-text>
+          <oj-input-text
+            id="routineSeries"
+            label-hint="Series"
+            value="{{routineSeries}}"
+          ></oj-input-text>
+        </oj-form-layout>
+      </div>
+      <div slot="footer">
+        <oj-button id="addButtonRoutine" on-oj-action="[[addRoutine]]" chroming="callToAction">Agregar meta</oj-button>
+        <oj-button id="closeButtonRoutine" on-oj-action="[[close2]]">Cancelar</oj-button>
       </div>
     </oj-dialog>
     <div class="oj-flex oj-sm-flex-items-initial oj-md-justify-content-space-around">
-      <oj-button id="addObj" class="oj-flex-item oj-button-lg" on-oj-action="[[open]]">Agregar metas</oj-button>
-      <oj-button id="addRoutine" class="oj-flex-item oj-button-lg">Agregar rutinas</oj-button>
+      <oj-button id="addObj" class="oj-flex-item oj-button-lg" on-oj-action="[[open1]]">Agregar metas</oj-button>
+      <oj-button id="addRoutine" class="oj-flex-item oj-button-lg" on-oj-action="[[open2]]">Agregar rutinas</oj-button>
       <oj-button id="setNotifications" class="oj-flex-item oj-button-lg">Configurar recordatorios</oj-button>
     </div>
     <div class="oj-flex">
