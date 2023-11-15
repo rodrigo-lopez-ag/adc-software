@@ -7,6 +7,13 @@
   <h1 class="oj-sm-margin-7x">Panel de control</h1>
   <div class="oj-panel oj-sm-margin-4x">
     <oj-dialog id="modalDialog1" dialog-title="Agregar Meta" cancel-behavior="escape" initial-visibility="hide">
+      <div slot="header">
+        <oj-message-banner
+          data="[[messages]]"
+          type="page"
+          on-oj-close="[[closeMessage]]"
+        ></oj-message-banner>
+      </div>
       <div slot="body">
         <oj-form-layout direction="row" max-columns="2">
           <oj-input-text
@@ -20,7 +27,6 @@
             label-hint="Valor objetivo"
             required="true"
             value="{{goalObjective}}"
-            raw-value="{{goalObjective}}"
           ></oj-input-text>
           <oj-label-value colspan="2">
             <oj-text-area

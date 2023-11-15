@@ -17,13 +17,8 @@ export interface Routines {
 export interface Goals {
     IDUsuario: string,
     IDMeta: string,
-    created: number,
     ValorObjetivo: number,
-    ___class: string,
     TipoMeta: string,
-    ownerId?: string,
     DescripcionMeta: string,
-    updated: number,
-    FechaCreacion: number,
-    objectId: string
+    FechaCreacion: number
 }

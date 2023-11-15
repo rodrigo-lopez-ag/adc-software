@@ -1,28 +1,36 @@
 import * as ko from 'knockout';
 import ArrayDataProvider = require("ojs/ojarraydataprovider");
+import { MessageBannerItem, MessageBannerElement } from 'ojs/ojmessagebanner';
+import MutableArrayDataProvider = require('ojs/ojmutablearraydataprovider');
 import { ojDialog } from "ojs/ojdialog";
 import { ojButton } from "ojs/ojbutton";
 import "ojs/ojknockout";
 import "ojs/ojinputtext";
 import "ojs/ojdialog";
 import "ojs/ojbutton";
-import 'ojs/ojvalidationgroup';
 import 'ojs/ojlabelvalue';
 import 'ojs/ojtable';
-import "ojs/ojdialog";
 import "ojs/ojformlayout";
+import 'ojs/ojmessagebanner';
 
 import { Constants } from "../utils/constants";
+import { Goals, Routines } from '../models/responsesInterfaces';
 import axios, { AxiosResponse } from "axios";
 
+type DemoMessageBannerItem = MessageBannerItem & {
+  id: string;
+};
+
 class DashboardViewModel {
+  readonly messages: MutableArrayDataProvider<string, DemoMessageBannerItem>;
+
   goalsDataProvider: ArrayDataProvider<Object[], Object>;
   routinesDataProvider: ArrayDataProvider<Object[], Object>;
   kgoals: ko.ObservableArray<Object> = ko.observableArray();
   kroutines: ko.ObservableArray<Object> = ko.observableArray();
 
   goalType: ko.Observable<string>;
-  goalObjective: ko.Observable<string>;
+  goalObjective: ko.Observable<number | undefined>;
   goalDescription: ko.Observable<string>;
 
   
@@ -40,9 +48,12 @@ class DashboardViewModel {
   ]
 
   constructor() {
-    const self = this;
+    this.messages = new MutableArrayDataProvider([], {
+      keyAttributes: 'id'
+    });
+
     this.goalType = ko.observable("");
-    this.goalObjective = ko.observable("");
+    this.goalObjective = ko.observable();
     this.goalDescription = ko.observable("");
 
     this.goalsDataProvider = new ArrayDataProvider([]);
@@ -54,6 +65,10 @@ class DashboardViewModel {
 
   generateRandomId = () => {
     return Math.floor(Math.random() * 1000000) + 1;
+  }
+
+  generateUnixTimestamp = () => {
+    return new Date().getTime();
   }
 
   fetchAllRoutines = async(): Promise<any> => {
@@ -106,9 +121,47 @@ class DashboardViewModel {
     console.error('API Error:', error.message);
   }
 
-  public addGoal(event: ojButton.ojAction) {
-    console.log(this.goalDescription());
-    (document.getElementById("modalDialog1") as ojDialog).close();
+  validateGoalPayload = (payload: Goals): boolean => {
+    if (typeof payload.TipoMeta !== 'string' || payload.TipoMeta.trim() === '') {
+      return false;  
+    }
+
+    if (typeof payload.ValorObjetivo !== 'number') {
+      return false;
+    }
+
+    if (typeof payload.DescripcionMeta !== 'string' || payload.DescripcionMeta.trim() === '') {
+      return false;
+    }
+    return true;
+  }
+
+  public addGoal = async(event: ojButton.ojAction) => {
+    const id = this.generateRandomId().toString();
+    const date = Number(this.generateUnixTimestamp());
+
+    const payload = {
+      IDUsuario: '1',
+      IDMeta: id,
+      ValorObjetivo: Number(this.goalObjective()),
+      TipoMeta: this.goalType(),
+      DescripcionMeta: this.goalDescription(),
+      FechaCreacion: date
+    };
+    if (this.validateGoalPayload(payload)) {
+      const postUrl = Constants.API_BASE_URL + Constants.GOALS_PATH;
+      const response: AxiosResponse<any> = await axios.post(postUrl, payload);
+
+      const addedGoal = await response.data;
+      console.log(addedGoal);
+      this.loadGoals();
+
+      (document.getElementById("modalDialog1") as ojDialog).close();
+    } else {
+      let data = this.messages.data.slice();
+      data.push({ id: 'message', severity: 'error', summary: 'Los campos requeridos no pueden estar vacios'});
+      this.messages.data = data;
+    }
   }
 
   public close(event: ojButton.ojAction) {
@@ -118,6 +171,14 @@ class DashboardViewModel {
   public open(event: ojButton.ojAction) {
     (document.getElementById("modalDialog1") as ojDialog).open();
   }
+
+  readonly closeMessage = (event: MessageBannerElement.ojClose<string, DemoMessageBannerItem>) => {
+    let data = this.messages.data.slice();
+    const closeMessageKey = event.detail.key;
+
+    data = data.filter((message) => (message as any).id !== closeMessageKey);
+    this.messages.data = data;
+  };
 }
 
 export = DashboardViewModel;
