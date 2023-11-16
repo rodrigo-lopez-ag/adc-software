@@ -1,9 +1,11 @@
 import * as ko from 'knockout';
 import ArrayDataProvider = require("ojs/ojarraydataprovider");
-import { MessageBannerItem, MessageBannerElement } from 'ojs/ojmessagebanner';
 import MutableArrayDataProvider = require('ojs/ojmutablearraydataprovider');
+import { MessageBannerItem, MessageBannerElement } from 'ojs/ojmessagebanner';
 import { ojDialog } from "ojs/ojdialog";
 import { ojButton } from "ojs/ojbutton";
+import { ojTable } from 'ojs/ojtable';
+import { KeySetImpl, AllKeySetImpl } from 'ojs/ojkeyset';
 import "ojs/ojknockout";
 import "ojs/ojinputtext";
 import "ojs/ojdialog";
@@ -22,6 +24,9 @@ type DemoMessageBannerItem = MessageBannerItem & {
 };
 
 class DashboardViewModel {
+  readonly selectedItems = ko.observable({
+    row: new KeySetImpl()
+  });
   readonly messagesGoals: MutableArrayDataProvider<string, DemoMessageBannerItem>;
   readonly messagesRoutines: MutableArrayDataProvider<string, DemoMessageBannerItem>;
 
@@ -108,6 +113,18 @@ class DashboardViewModel {
     }
   }
 
+  postGoal = async(payload: Goals): Promise<any> => {
+    const postUrl = Constants.API_BASE_URL + Constants.GOALS_PATH;
+    const response: AxiosResponse<any> = await axios.post(postUrl, payload);
+    return response.data;
+  };
+
+  postRoutine = async(payload: Routines): Promise<any> => {
+    const postUrl = Constants.API_BASE_URL + Constants.ROUTINES_PATH;
+    const response: AxiosResponse<any> = await axios.post(postUrl, payload);
+    return response.data;
+  };
+
   loadGoals = async (): Promise<void> => {
     const goals = this.fetchAllGoals();
     goals.then(data => {
@@ -119,6 +136,9 @@ class DashboardViewModel {
     this.goalsDataProvider = new ArrayDataProvider(this.kgoals ,{
       keyAttributes: 'IDMeta'
     });
+    this.goalType("");
+    this.goalObjective(undefined);
+    this.goalDescription("");
   }
 
   loadRoutines = async(): Promise<void> => {
@@ -132,6 +152,12 @@ class DashboardViewModel {
     this.routinesDataProvider = new ArrayDataProvider(this.kroutines ,{
       keyAttributes: 'ID'
     });
+    this.routineName("");
+    this.routineDescription("");
+    this.routineType("");
+    this.routineDuration(undefined);
+    this.routineReps(undefined);
+    this.routineSeries(undefined);
   }
 
   handleApiError = (error: any) => {
@@ -167,8 +193,7 @@ class DashboardViewModel {
       FechaCreacion: date
     };
     if (this.validateGoalPayload(payload)) {
-      const postUrl = Constants.API_BASE_URL + Constants.GOALS_PATH;
-      const response: AxiosResponse<any> = await axios.post(postUrl, payload);
+      this.postGoal(payload);
       this.loadGoals();
       (document.getElementById("modalDialog1") as ojDialog).close();
     } else {
@@ -192,8 +217,8 @@ class DashboardViewModel {
       Series: Number(this.routineSeries())
     };
     if (this.validateRoutinelPayload(payload)) {
-      const postUrl = Constants.API_BASE_URL + Constants.ROUTINES_PATH;
-      const response: AxiosResponse<any> = await axios.post(postUrl, payload);
+      const response = this.postRoutine(payload);
+      console.log(response);
       this.loadRoutines();
       (document.getElementById("modalDialog2") as ojDialog).close();
     } else {
@@ -221,6 +246,7 @@ class DashboardViewModel {
 
   public close1(event: ojButton.ojAction) {
     (document.getElementById("modalDialog1") as ojDialog).close();
+    this.clearSelection();
   }
 
   public open1(event: ojButton.ojAction) {
@@ -229,11 +255,24 @@ class DashboardViewModel {
 
   public close2(event: ojButton.ojAction) {
     (document.getElementById("modalDialog2") as ojDialog).close();
+    this.clearSelection();
   }
 
   public open2(event: ojButton.ojAction) {
     (document.getElementById("modalDialog2") as ojDialog).open();
   }
+
+  public updateGoals(event: CustomEvent) {
+    (document.getElementById("modalDialog1") as ojDialog).open();
+  }
+
+  public updateRoutines(event: CustomEvent) {
+    (document.getElementById("modalDialog2") as ojDialog).open();
+  }
+
+  public clearSelection = () => {
+    this.selectedItems({ row: new KeySetImpl() });
+  };
 
   readonly closeMessageGoals = (event: MessageBannerElement.ojClose<string, DemoMessageBannerItem>) => {
     let data = this.messagesGoals.data.slice();
@@ -241,7 +280,7 @@ class DashboardViewModel {
 
     data = data.filter((message) => (message as any).id !== closeMessageKey);
     this.messagesGoals.data = data;
-  };
+  }
 
   readonly closeMessageRoutines = (event: MessageBannerElement.ojClose<string, DemoMessageBannerItem>) => {
     let data = this.messagesRoutines.data.slice();
@@ -249,7 +288,7 @@ class DashboardViewModel {
 
     data = data.filter((message) => (message as any).id !== closeMessageKey);
     this.messagesRoutines.data = data;
-  };
+  }
 }
 
 export = DashboardViewModel;

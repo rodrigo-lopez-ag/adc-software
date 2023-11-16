@@ -117,13 +117,16 @@
         </div>
         <div class="oj-sm-margin-2x-vertical">
           <oj-table
-            id="routinesTable"
-            aria-label="Routines Table"
+            id="routinesGoals"
+            aria-label="Goals Table"
             accessibility.row-header="routine"
             data="[[goalsDataProvider]]"
             columns="{{goalsColumns}}"
             columns-default='{"sortable": "disabled"}'
+            selection-mode.row="single"
+            selected="{{selectedItems}}"
             class="demo-table-container"
+            on-oj-row-action="[[updateGoals]]"
           >
           </oj-table>
         </div>
@@ -140,7 +143,10 @@
             data="[[routinesDataProvider]]"
             columns="{{routinesColumns}}"
             columns-default='{"sortable": "disabled"}'
+            selection-mode.row="single"
+            selected="{{selectedItems}}"
             class="demo-table-container"
+            on-oj-row-action="[[updateRoutines]]"
           >
           </oj-table>
         </div>

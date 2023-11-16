@@ -86,6 +86,16 @@
             </oj-toolbar>
           </div>
         </div>
+        <div role="navigation" class="oj-web-applayout-max-width oj-web-applayout-navbar">
+          <oj-navigation-list id="navList"
+                              data="[[navDataProvider]]"
+                              :class="[[{'oj-md-condense oj-md-justify-content-flex-end': !smScreen()}]]"
+                              display="[[smScreen() ? 'icons' : 'all']]"
+                              edge="top"
+                              item.renderer="[[oj.KnockoutTemplateUtils.getRenderer('navTemplate', true)]]"
+                              selection="{{selection.path}}">
+          </oj-navigation-list>
+        </div>
       </header>
       <oj-module role="main" class="oj-web-applayout-max-width oj-web-applayout-content" config="[[moduleAdapter.koObservableConfig]]">
       </oj-module>
