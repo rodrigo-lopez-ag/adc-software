@@ -4,8 +4,7 @@ import MutableArrayDataProvider = require('ojs/ojmutablearraydataprovider');
 import { MessageBannerItem, MessageBannerElement } from 'ojs/ojmessagebanner';
 import { ojDialog } from "ojs/ojdialog";
 import { ojButton } from "ojs/ojbutton";
-import { ojTable } from 'ojs/ojtable';
-import { KeySetImpl, AllKeySetImpl } from 'ojs/ojkeyset';
+import { KeySetImpl } from 'ojs/ojkeyset';
 import "ojs/ojknockout";
 import "ojs/ojinputtext";
 import "ojs/ojdialog";
@@ -34,6 +33,7 @@ class DashboardViewModel {
   routinesDataProvider: ArrayDataProvider<Object[], Object>;
   kgoals: ko.ObservableArray<Object> = ko.observableArray();
   kroutines: ko.ObservableArray<Object> = ko.observableArray();
+  key: ko.Observable<string>;
 
   goalType: ko.Observable<string>;
   goalObjective: ko.Observable<number | undefined>;
@@ -66,6 +66,7 @@ class DashboardViewModel {
     this.messagesRoutines = new MutableArrayDataProvider([], {
       keyAttributes: 'id'
     });
+    this.key = ko.observable("");
 
     this.goalType = ko.observable("");
     this.goalObjective = ko.observable();
@@ -129,35 +130,28 @@ class DashboardViewModel {
     const goals = this.fetchAllGoals();
     goals.then(data => {
       data.map((e: any) => {
-        const { IDMeta, DescripcionMeta } = e;
-        this.kgoals.push({ IDMeta, DescripcionMeta });
+        const { IDMeta, DescripcionMeta, ValorObjetivo, TipoMeta, objectId } = e;
+        this.kgoals.push({ IDMeta, DescripcionMeta, ValorObjetivo, TipoMeta, objectId });
       });
     });
     this.goalsDataProvider = new ArrayDataProvider(this.kgoals ,{
       keyAttributes: 'IDMeta'
     });
-    this.goalType("");
-    this.goalObjective(undefined);
-    this.goalDescription("");
+    this.clearGoalFields();
   }
 
   loadRoutines = async(): Promise<void> => {
     const routines = this.fetchAllRoutines();
     routines.then(data => {
       data.map((e: any) => {
-        const { ID, Tipo, NombreEjercicio, Descripcion, Repeticiones, Duracion, Series } = e;
-        this.kroutines.push({ ID, Tipo, NombreEjercicio, Descripcion, Repeticiones, Duracion, Series });
+        const { ID, Tipo, NombreEjercicio, Descripcion, Repeticiones, Duracion, Series, objectId } = e;
+        this.kroutines.push({ ID, Tipo, NombreEjercicio, Descripcion, Repeticiones, Duracion, Series, objectId });
       });
     });
     this.routinesDataProvider = new ArrayDataProvider(this.kroutines ,{
       keyAttributes: 'ID'
     });
-    this.routineName("");
-    this.routineDescription("");
-    this.routineType("");
-    this.routineDuration(undefined);
-    this.routineReps(undefined);
-    this.routineSeries(undefined);
+    this.clearRoutineFields();
   }
 
   handleApiError = (error: any) => {
@@ -168,15 +162,12 @@ class DashboardViewModel {
     if (typeof payload.TipoMeta !== 'string' || payload.TipoMeta.trim() === '') {
       return false;  
     }
-
     if (typeof payload.ValorObjetivo !== 'number') {
       return false;
     }
-
     if (typeof payload.DescripcionMeta !== 'string' || payload.DescripcionMeta.trim() === '') {
       return false;
     }
-
     return true;
   }
 
@@ -232,47 +223,107 @@ class DashboardViewModel {
     if (typeof payload.NombreEjercicio !== 'string' || payload.NombreEjercicio.trim() === '') {
       return false;  
     }
-
     if (typeof payload.Descripcion !== 'string' || payload.Descripcion.trim() === '') {
       return false;
     }
-
     if (typeof payload.Tipo !== 'string' || payload.Tipo.trim() === '') {
       return false;
     }
-
     return true;
   }
 
-  public close1(event: ojButton.ojAction) {
+  public close1 = (event: ojButton.ojAction) => {
     (document.getElementById("modalDialog1") as ojDialog).close();
     this.clearSelection();
   }
 
-  public open1(event: ojButton.ojAction) {
+  public open1 = (event: ojButton.ojAction) => {
+    this.clearGoalFields();
     (document.getElementById("modalDialog1") as ojDialog).open();
   }
 
-  public close2(event: ojButton.ojAction) {
+  public close2 = (event: ojButton.ojAction) => {
     (document.getElementById("modalDialog2") as ojDialog).close();
     this.clearSelection();
   }
 
-  public open2(event: ojButton.ojAction) {
+  public open2 = (event: ojButton.ojAction) => {
+    this.clearRoutineFields();
     (document.getElementById("modalDialog2") as ojDialog).open();
   }
 
-  public updateGoals(event: CustomEvent) {
+  public updateGoals = async(event: CustomEvent) => {
+    const { key } = event.detail.context;
+    this.key(key);
+    let id = "";
+    this.kgoals().map((e: any) => {
+      if (key === e.IDMeta) {
+        const { TipoMeta, ValorObjetivo, DescripcionMeta, objectId } = event.detail.context.data;
+        this.goalType(TipoMeta);
+        this.goalObjective(ValorObjetivo);
+        this.goalDescription(DescripcionMeta);
+        id = objectId;
+      }
+    });
+    const payload = {
+      ValorObjetivo: this.goalObjective(),
+      TipoMeta: this.goalType(),
+      DescripcionMeta: this.goalDescription()
+    };
+
+    // const payload = {
+    //   IDMeta: id,
+    //   IDUsuario: '1',
+    //   ValorObjetivo: Number(this.goalObjective()),
+    //   TipoMeta: this.goalType(),
+    //   DescripcionMeta: this.goalDescription(),
+    //   FechaCreacion: date
+    // };
     (document.getElementById("modalDialog1") as ojDialog).open();
   }
 
-  public updateRoutines(event: CustomEvent) {
+  public updateRoutines = (event: CustomEvent) => {
+    const { key } = event.detail.context;
+    this.key(key);
+    this.kroutines().map((e: any) => {
+      if (key === e.ID) {
+        const { Tipo, NombreEjercicio, Descripcion, Repeticiones, Duracion, Series, objectId } = e
+        this.routineDescription(Descripcion);
+        this.routineDuration(Duracion);
+        this.routineName(NombreEjercicio);
+        this.routineReps(Repeticiones)
+        this.routineType(Tipo);
+        this.routineSeries(Series);
+      }
+    });
+
     (document.getElementById("modalDialog2") as ojDialog).open();
+  }
+
+  private updateGoalByObjectId = async(payload: any, objectId: string): Promise<void> => {
+    const url = Constants.API_BASE_URL + Constants.GOALS_PAHT_OBJECTID(objectId);
+    const response: AxiosResponse<any> = await axios.put(url, payload);
+    return response.data;
   }
 
   public clearSelection = () => {
     this.selectedItems({ row: new KeySetImpl() });
-  };
+  }
+
+  public clearGoalFields = () => {
+    this.goalType("");
+    this.goalObjective(undefined);
+    this.goalDescription("");
+  }
+
+  public clearRoutineFields = () => {
+    this.routineName("");
+    this.routineDescription("");
+    this.routineType("");
+    this.routineDuration(undefined);
+    this.routineReps(undefined);
+    this.routineSeries(undefined);
+  }
 
   readonly closeMessageGoals = (event: MessageBannerElement.ojClose<string, DemoMessageBannerItem>) => {
     let data = this.messagesGoals.data.slice();

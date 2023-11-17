@@ -50,7 +50,9 @@ class RootViewModel {
 
     const navData = [
       { path: "", redirect: "dashboard" },
-      { path: "dashboard", detail: { label: "Dashboard", iconClass: "oj-ux-ico-dashboard" } }
+      { path: "dashboard", detail: { label: "Dashboard", iconClass: "oj-ux-ico-dashboard" } },
+      { path: "notifications", detail: { label: "Notifications", iconClass: "oj-ux-ico-notification"} },
+      { path: "metrics", detail: { label: "Metrics", iconClass: "oj-ux-ico-key-metrics"} }
     ];
     // router setup
     const router = new CoreRouter(navData, {

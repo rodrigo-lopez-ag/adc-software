@@ -6,7 +6,7 @@ export interface Routines {
     Repeticiones?: number,
     NombreEjercicio: string,
     Descripcion: string,
-    ID: string,
+    ID: string
 }
 
 export interface Goals {
