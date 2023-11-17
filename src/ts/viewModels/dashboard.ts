@@ -33,7 +33,7 @@ class DashboardViewModel {
   routinesDataProvider: ArrayDataProvider<Object[], Object>;
   kgoals: ko.ObservableArray<Object> = ko.observableArray();
   kroutines: ko.ObservableArray<Object> = ko.observableArray();
-  key: ko.Observable<string>;
+  objectId: ko.Observable<string>;
 
   goalType: ko.Observable<string>;
   goalObjective: ko.Observable<number | undefined>;
@@ -66,7 +66,7 @@ class DashboardViewModel {
     this.messagesRoutines = new MutableArrayDataProvider([], {
       keyAttributes: 'id'
     });
-    this.key = ko.observable("");
+    this.objectId = ko.observable("");
 
     this.goalType = ko.observable("");
     this.goalObjective = ko.observable();
@@ -127,6 +127,7 @@ class DashboardViewModel {
   };
 
   loadGoals = async (): Promise<void> => {
+    this.kgoals([]);
     const goals = this.fetchAllGoals();
     goals.then(data => {
       data.map((e: any) => {
@@ -141,6 +142,7 @@ class DashboardViewModel {
   }
 
   loadRoutines = async(): Promise<void> => {
+    this.kroutines([]);
     const routines = this.fetchAllRoutines();
     routines.then(data => {
       data.map((e: any) => {
@@ -183,15 +185,21 @@ class DashboardViewModel {
       DescripcionMeta: this.goalDescription(),
       FechaCreacion: date
     };
-    if (this.validateGoalPayload(payload)) {
-      this.postGoal(payload);
-      this.loadGoals();
+    if (this.objectId() !== "" && this.validateGoalPayload(payload)) {
+      await this.updateGoalByObjectId(payload, this.objectId());
+      await this.loadGoals();
+      this.clearSelection();
       (document.getElementById("modalDialog1") as ojDialog).close();
+    } else if (this.validateGoalPayload(payload)) {
+      await this.postGoal(payload);
+      await this.loadGoals();
+      (document.getElementById("modalDialog1") as ojDialog).close();  
     } else {
       let data = this.messagesGoals.data.slice();
       data.push({ id: 'message', severity: 'error', summary: 'Los campos requeridos no pueden estar vacios'});
-      this.messagesGoals.data = data;
+      this.messagesGoals.data = data;  
     }
+    this.objectId("");
   }
 
   public addRoutine = async(event: ojButton.ojAction) => {
@@ -207,10 +215,14 @@ class DashboardViewModel {
       Repeticiones: Number(this.routineReps()),
       Series: Number(this.routineSeries())
     };
-    if (this.validateRoutinelPayload(payload)) {
-      const response = this.postRoutine(payload);
-      console.log(response);
-      this.loadRoutines();
+    if (this.objectId() !== "" && this.validateRoutinelPayload(payload)) {
+      await this.updateRoutineByPayloadId(payload, this.objectId());
+      await this.loadRoutines();
+      this.clearSelection();
+      (document.getElementById("modalDialog2") as ojDialog).close();
+    } else if (this.validateRoutinelPayload(payload)) {
+      await this.postRoutine(payload);
+      await this.loadRoutines();
       (document.getElementById("modalDialog2") as ojDialog).close();
     } else {
       let data = this.messagesRoutines.data.slice();
@@ -254,37 +266,20 @@ class DashboardViewModel {
 
   public updateGoals = async(event: CustomEvent) => {
     const { key } = event.detail.context;
-    this.key(key);
-    let id = "";
     this.kgoals().map((e: any) => {
       if (key === e.IDMeta) {
         const { TipoMeta, ValorObjetivo, DescripcionMeta, objectId } = event.detail.context.data;
         this.goalType(TipoMeta);
         this.goalObjective(ValorObjetivo);
         this.goalDescription(DescripcionMeta);
-        id = objectId;
+        this.objectId(objectId);
       }
     });
-    const payload = {
-      ValorObjetivo: this.goalObjective(),
-      TipoMeta: this.goalType(),
-      DescripcionMeta: this.goalDescription()
-    };
-
-    // const payload = {
-    //   IDMeta: id,
-    //   IDUsuario: '1',
-    //   ValorObjetivo: Number(this.goalObjective()),
-    //   TipoMeta: this.goalType(),
-    //   DescripcionMeta: this.goalDescription(),
-    //   FechaCreacion: date
-    // };
     (document.getElementById("modalDialog1") as ojDialog).open();
   }
 
   public updateRoutines = (event: CustomEvent) => {
     const { key } = event.detail.context;
-    this.key(key);
     this.kroutines().map((e: any) => {
       if (key === e.ID) {
         const { Tipo, NombreEjercicio, Descripcion, Repeticiones, Duracion, Series, objectId } = e
@@ -294,9 +289,9 @@ class DashboardViewModel {
         this.routineReps(Repeticiones)
         this.routineType(Tipo);
         this.routineSeries(Series);
+        this.objectId(objectId);
       }
     });
-
     (document.getElementById("modalDialog2") as ojDialog).open();
   }
 
@@ -306,7 +301,13 @@ class DashboardViewModel {
     return response.data;
   }
 
-  public clearSelection = () => {
+  private updateRoutineByPayloadId = async(payload: any, objectId: string): Promise<void> => {
+    const url = Constants.API_BASE_URL + Constants.ROUTINES_PATH_OBJECTID(objectId);
+    const response: AxiosResponse<any> = await axios.put(url, payload);
+    return response.data;
+  }
+
+  private clearSelection = () => {
     this.selectedItems({ row: new KeySetImpl() });
   }
 

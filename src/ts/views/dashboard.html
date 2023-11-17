@@ -116,7 +116,7 @@
         </div>
         <div class="oj-sm-margin-2x-vertical">
           <oj-table
-            id="routinesGoals"
+            id="goalsTable"
             aria-label="Goals Table"
             accessibility.row-header="routine"
             data="[[goalsDataProvider]]"
@@ -126,6 +126,7 @@
             selected="{{selectedItems}}"
             class="demo-table-container"
             on-oj-row-action="[[updateGoals]]"
+            layout="fixed"
           >
           </oj-table>
         </div>
@@ -146,6 +147,7 @@
             selected="{{selectedItems}}"
             class="demo-table-container"
             on-oj-row-action="[[updateRoutines]]"
+            layout="fixed"
           >
           </oj-table>
         </div>
