@@ -30,7 +30,8 @@ class NotificationsViewModel {
         row: new KeySetImpl()
     });
     readonly messages: MutableArrayDataProvider<string, DemoMessageBannerItem>;
-    
+    readonly selectedCombo: ko.Observable<string>;
+
     knotifications: ko.ObservableArray<Object>;
     notificationDescription: ko.Observable<string>;
     notificationPeriod: ko.Observable<string>;
@@ -54,6 +55,7 @@ class NotificationsViewModel {
         this.periodsProvider = new ArrayDataProvider(this.periods, {
             keyAttributes: 'value'
         });
+        this.selectedCombo = ko.observable("");
         this.knotifications = ko.observableArray();
         this.notificationDescription = ko.observable("");
         this.notificationPeriod = ko.observable("");
@@ -94,11 +96,7 @@ class NotificationsViewModel {
         this.notificationProvider = new ArrayDataProvider(this.knotifications, {
             keyAttributes: 'created'
         });
-        console.log(this.knotifications());
-    }
-
-    generateRandomId = () => {
-        return Math.floor(Math.random() * 1000000) + 1;
+        this.clearFields();
     }
 
     generateUnixTimestamp = () => {
@@ -110,12 +108,20 @@ class NotificationsViewModel {
     }
 
     public addNotification = async(event: ojButton.ojAction) => {
-        const id = this.generateRandomId().toString();
         const date = Number(this.generateUnixTimestamp());
+
+        const payload = {
+            Descripcion: this.notificationDescription(),
+            Periodo: this.notificationPeriod(),
+            Valor: this.notificationValue(),
+            FechaRecordar: date
+        };
+        console.log(payload);
     }
 
     public open = (event: ojButton.ojAction) => {
         (document.getElementById("modalDialog") as ojDialog).open();
+        this.clearFields();
     }
 
     public close = (event: ojButton.ojAction) => {
@@ -133,6 +139,12 @@ class NotificationsViewModel {
 
     private clearSelection = () => {
         this.selectedItems({ row: new KeySetImpl() });
+    }
+
+    private clearFields = () => {
+        this.notificationDescription("");
+        this.selectedCombo("");
+        this.notificationValue(undefined);
     }
 }
 
