@@ -1,1 +1,67 @@
-<h1>Notifications page works</h1>
+<div class="oj-hybrid-padding">
+    <h1 class="oj-sm-margin-7x">Notificaciones</h1>
+    <div class="oj-panel oj-sm-margin-4x">
+        <oj-dialog id="modalDialog" dialog-title="Agregar Notificacion" cancel-behavior="escape" initial-visibility="hide">
+            <div slot="header">
+                <oj-message-banner
+                    data="[[messages]]"
+                    type="page"
+                    on-oj-close="[[closeMessages]]"
+                ></oj-message-banner>
+                <h6>Agregar meta</h6>
+            </div>
+            <div slot="body">
+                <oj-form-layout direction="row" max-columns="2">
+                    <oj-label-value colspan="2">
+                        <oj-text-area
+                            id="notificationsDescription"
+                            label-hint="Descripcion de la notificacion"
+                            rows="2"
+                            slot="value"
+                            required="true"
+                            value="{{notificationDescription}}"
+                        ></oj-text-area>
+                    </oj-label-value>
+                    <oj-select-single
+                        id="period"
+                        label-hint="Periodo"
+                        data="[[periodsProvider]]"
+                    ></oj-select-single>
+                    <oj-input-text
+                        id="reps"
+                        label-hint="Valor para repetir"
+                        required="true"
+                        value="{{notificationValue}}"
+                    ></oj-input-text>
+                </oj-form-layout>
+            </div>
+            <div slot="footer">
+                <oj-button id="add" on-oj-action="[[addNotification]]" chroming="callToAction">Agregar notificacion</oj-button>
+                <oj-button id="close" on-oj-action="[[close]]">Cancelar</oj-button>
+            </div>
+        </oj-dialog>
+        <div class="oj-flex oj-sm-flex-items-initial oj-sm-justify-content-center">
+            <oj-button id="addNotification" class="oj-flex-item oj-button-lg" on-oj-action="[[open]]">Agregar notificacion</oj-button>
+        </div>
+        <div class="oj-flex oj-sm-flex-items-initial oj-sm-justify-content-center oj-sm-margin-4x-vertical">
+            <h5 class="oj-flex oj-sm-flex-items-initial oj-lg-justify-content-center">Lista de recordatorios</h5>
+        </div>
+        <div class="oj-flex oj-sm-flex-items-initial oj-sm-justify-content-center">
+            <div class="oj-sm-width-2/5 oj-sm-margin-2x-vertical">
+                <oj-table
+                    id="notificationsTable"
+                    aria-label="Notifications Table"
+                    accessibility.row-header="notifications"
+                    data="[[notificationProvider]]"
+                    columns="[[notificationsColumns]]"
+                    columns-default='{"sortable": "disabled"}'
+                    selection-mode.row="single"
+                    selected="{{selectedItems}}"
+                    class="demo-table-container"
+                    on-oj-row-action="[[updateNotifications]]"
+                    layout="fixed"
+                ></oj-table>
+            </div>
+        </div>
+    </div>
+</div>
