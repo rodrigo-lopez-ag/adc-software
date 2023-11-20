@@ -3,7 +3,8 @@ export const Constants = {
     ROUTINES_PATH: "/TablaRutinas",
     GOALS_PATH: "/TablaMetas",
     NOTIFICATIONS_PATH: "/TablaRecordatorios",
+    PROGRESS_PATH: "/TablaProgreso",
     ROUTINES_PATH_OBJECTID: (objectId: string): string => `/TablaRutinas/${objectId}`,
     GOALS_PAHT_OBJECTID: (objectId: string): string => `/TablaMetas/${objectId}`,
-    NOTIFICATIONS_PATH_OBJECTID: (objectId: string): string => `/TablaRecordatorios/$${objectId}`
+    NOTIFICATIONS_PATH_OBJECTID: (objectId: string): string => `/TablaRecordatorios/${objectId}`
 }

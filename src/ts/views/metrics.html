@@ -1,1 +1,17 @@
-<h1>Metrics page works</h1>
+<div class="oj-hybrid-padding">
+    <h1 class="oj-sm-margin-7x">Metricas</h1>
+    <oj-chart
+        type="scatter"
+        selection-mode="multiple"
+        data="[[dataProvider]]"
+        animation-on-display="auto"
+        hover-behavior="dim">
+        <template slot="itemTemplate" data-oj-as="item">
+            <oj-chart-item
+                x="[[item.data.x]]"
+                y="[[item.data.y]]"
+                group-id="[[ [item.data.group] ]]"
+                series-id="[[item.data.series]]"></oj-chart-item>
+        </template>
+    </oj-chart>
+</div>

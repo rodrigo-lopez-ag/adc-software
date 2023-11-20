@@ -32,6 +32,8 @@ class NotificationsViewModel {
     readonly messages: MutableArrayDataProvider<string, DemoMessageBannerItem>;
     readonly selectedCombo: ko.Observable<string>;
 
+    objectId: ko.Observable<string>;
+
     knotifications: ko.ObservableArray<Object>;
     notificationDescription: ko.Observable<string>;
     notificationPeriod: ko.Observable<string>;
@@ -55,6 +57,7 @@ class NotificationsViewModel {
         this.periodsProvider = new ArrayDataProvider(this.periods, {
             keyAttributes: 'value'
         });
+        this.objectId = ko.observable("");
         this.selectedCombo = ko.observable("");
         this.knotifications = ko.observableArray();
         this.notificationDescription = ko.observable("");
@@ -104,7 +107,23 @@ class NotificationsViewModel {
     }
 
     public updateNotifications = async(event: CustomEvent) => {
+        const { key } = event.detail.context;
+        this.knotifications().map((e: any) => {
+            if (key === e.created) {
+                const { Descripcion, Periodo, Valor, created, objectId } = event.detail.context.data;
+                this.notificationDescription(Descripcion);
+                this.selectedCombo(Periodo);
+                this.notificationValue(Valor);
+                this.objectId(objectId);
+            }
+        });
+        (document.getElementById("modalDialog") as ojDialog).open();
+    }
 
+    public updateNotificationsById = async(payload: any, objectId: string) => {
+        const url = Constants.API_BASE_URL + Constants.NOTIFICATIONS_PATH_OBJECTID(objectId);
+        const response: AxiosResponse<any> = await axios.put(url, payload);
+        return response.data;
     }
 
     public addNotification = async(event: ojButton.ojAction) => {
@@ -112,11 +131,37 @@ class NotificationsViewModel {
 
         const payload = {
             Descripcion: this.notificationDescription(),
-            Periodo: this.notificationPeriod(),
-            Valor: this.notificationValue(),
+            Periodo: this.selectedCombo(),
+            Valor: Number(this.notificationValue()),
             FechaRecordar: date
         };
-        console.log(payload);
+        if (this.objectId() !== '' && this.validatePayload(payload)) {
+            await this.updateNotificationsById(payload, this.objectId());
+            await this.loadNotifications();
+            this.clearFields();
+            (document.getElementById("modalDialog") as ojDialog).close();
+        } else if (this.validatePayload(payload)) {
+            await this.postNotification(payload);
+            await this.loadNotifications();
+            (document.getElementById("modalDialog") as ojDialog).close();
+        } else {
+            let data = this.messages.data.slice();
+            data.push({ id: 'message', severity: 'error', summary: 'Los campos requeridos no pueden estar vacios'});
+            this.messages.data = data;
+        }
+    }
+
+    private validatePayload = (payload: any): boolean => {
+        if (typeof payload.Descripcion !== 'string' || payload.Descripcion.trim() === '') {
+            return false;
+        }
+        if (typeof payload.Periodo !== 'string' || payload.Periodo.trim() === '') {
+            return false;
+        }
+        if (typeof payload.Valor !== 'number') {
+            return false;
+        }
+        return true;
     }
 
     public open = (event: ojButton.ojAction) => {

@@ -1,0 +1,37 @@
+[
+    {
+        "id":0,
+        "group": "grupo a",
+        "series": "series 1",
+        "x":1702044000,
+        "y":4.3
+    },
+    {
+        "id":1,
+        "group": "grupo a",
+        "series": "series 1",
+        "x":1700495788,
+        "y":5.7
+    },
+    {
+        "id":2,
+        "group": "grupo a",
+        "series": "series 1",
+        "x":1699286154,
+        "y":4.5
+    },
+    {
+        "id":3,
+        "group": "grupo a",
+        "series": "series 1",
+        "x":1699941600,
+        "y":3.5
+    },
+    {
+        "id":4,
+        "group": "grupo a",
+        "series": "series 1",
+        "x":1700178326,
+        "y":2.1
+    }
+]
